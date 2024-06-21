@@ -51,11 +51,11 @@ Stage  Job ID           Job name                                                
 
 ```
 
-Run all with `act` or a named job like `act -j test`
+Run all with `act` or a named job like `act -j test-actor`
 
 ```shell
-⚡ act -j test
-[CI/test] 🚀  Start image=ghcr.io/catthehacker/ubuntu:act-latest
-[CI/test]   🐳  docker pull image=ghcr.io/catthehacker/ubuntu:act-latest platform= username= forcePull=false
+⚡ act -j test-actor     
+[activitypub-testing.yaml/`activitypub-testing test actor` node=21.x-2] 🚀  Start image=ghcr.io/catthehacker/ubuntu:act-latest
+[activitypub-testing.yaml/`activitypub-testing test actor` node=20.x-1] 🚀  Start image=ghcr.io/catthehacker/ubuntu:act-latest
 …
 ```
