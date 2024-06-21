@@ -44,8 +44,11 @@ Then see jobs like
 
 ```
 ⚡ act -l
-Stage  Job ID  Job name  Workflow name  Workflow file  Events
-0      test    test      CI             main.yaml      push  
+Stage  Job ID           Job name                                                          Workflow name             Workflow file             Events                
+0      test-actor       `activitypub-testing test actor` node=${{ matrix.node-version }}  activitypub-testing.yaml  activitypub-testing.yaml  push,workflow_dispatch
+0      test-actor-yaml  test-actor-yaml                                                   activitypub-testing.yaml  activitypub-testing.yaml  push,workflow_dispatch
+0      test             test                                                              main.yaml                 main.yaml                 push                  
+
 ```
 
 Run all with `act` or a named job like `act -j test`

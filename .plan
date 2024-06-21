@@ -1,0 +1,2 @@
+* [ ] github action should show test results summary using https://github.com/test-summary/examples/tree/main/javascript-tap#test-summary-example-javascript-with-node-tap
+* 2024-06-21: [x] add yaml-only job to .github/workflows/activitypub-testing.yaml

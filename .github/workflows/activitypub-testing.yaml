@@ -1,7 +1,29 @@
-on: push
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
-  activitypub-testing-test-actor:
+  test-actor:
+    name: "`activitypub-testing test actor` node=${{ matrix.node-version }}"
+    strategy:
+      matrix:
+        node-version: ['20.x', '21.x']
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - run: ./bin/activitypub-testing
+
+  # this is possible, and the proof is included, but it's not recommended.
+  # It's nicer to maintain the shell script in a standalone file,
+  # because then you can run the script in contexts other than github actions
+  # (e.g. to test it locally, or to use with tools like shellcheck).
+  # note: there may be other ways to do this, but this one works with nektos/act despite https://github.com/nektos/act/issues/2287
+  test-actor-yaml:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -9,4 +31,27 @@ jobs:
       with:
         node-version: 20.x
     - run: npm ci
-    - run: ./bin/activitypub-testing
+    - name: run and test server
+      run: |
+        debug() {
+          >&2 echo
+          >&2 echo "$@"
+        }
+        main() {
+          debug "starting server"
+          npm start &
+          serverPid=$?
+          serverUrl=http://localhost:8000
+
+          debug "waiting for server to be available at $serverUrl"
+          until curl --output /dev/null --silent --head --fail $serverUrl; do
+            >&2 printf '.'
+            sleep 5
+          done
+          debug "server is available at $serverUrl"
+
+          me="$serverUrl/users/me"
+          debug "running activityput-testing test actor $me"
+          npx activitypub-testing test actor $me
+        }
+        main
