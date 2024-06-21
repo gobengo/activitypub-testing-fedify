@@ -150,7 +150,7 @@ const processPath = process.argv[1]
 
 if (filePath === processPath) {
   serve({
-    port: 8000,
+    port: process.env.PORT || 8000,
     fetch: behindProxy(app.fetch)
   });
 }

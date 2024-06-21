@@ -1,0 +1,20 @@
+#!/bin/sh
+
+help() {
+  echo "runs herokuish test using docker."
+  echo
+  echo "this is useful to make sure that the repo builds, runs, and tests using the heroku-buildpack-nodejs conventions."
+  echo "more context in herokuish README at <https://github.com/gliderlabs/herokuish?tab=readme-ov-file#running-an-app-against-herokuish>."
+}
+
+main() {
+  >&2 echo "running \`herokuish test\` in docker"
+  docker run --platform=linux/amd64 --rm -v $(pwd):/tmp/app gliderlabs/herokuish /bin/herokuish test
+}
+
+if [ "$1" == "-h" ] || [ "$1" == "h" ] || [ "$1" == "help" ]; then
+  # show help when script is run with '-h', 'h', or 'help' arg
+  help
+else
+  main
+fi
