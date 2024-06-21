@@ -1,0 +1,53 @@
+#!/bin/sh
+
+help() {
+  echo "boots the server, then runs activitypub-testing against it"
+}
+
+err() {
+  >&2 echo "$@"
+}
+
+main() {
+  err; err running server
+  npx tsx server.ts &
+  serverUrl=http://localhost:8000
+
+  err; err waiting for server to be available at $serverUrl
+  until curl --output /dev/null --silent --head --fail $serverUrl; do
+    >&2 printf '.'
+    sleep 5
+  done
+  err; err server is available at $serverUrl
+
+  me="$serverUrl/users/me"
+  err; err fetching "$me"
+  curl -v "$me" -H "Accept: application/json"
+
+  err; err running \`activitypub-testing test actor "$me"\`
+  npx activitypub-testing test actor "$me"
+  err finished running \`activitypub-testing test actor "$me"\`
+
+}
+
+cleanup() {
+  # kill all processes whose parent is this process
+  pkill -P $$
+}
+
+# https://aweirdimagination.net/2020/06/28/kill-child-jobs-on-script-exit/
+for sig in INT QUIT HUP TERM; do
+  trap "
+    cleanup
+    trap - $sig EXIT
+    kill -s $sig "'"$$"' "$sig"
+done
+trap cleanup EXIT
+
+# dispatch to functions based on script arguments
+if [ "$1" = "-h" ] || [ "$1" = "h" ] || [ "$1" = "help" ]; then
+  # show help when script is run with '-h', 'h', or 'help' arg
+  help
+else
+  main
+fi
