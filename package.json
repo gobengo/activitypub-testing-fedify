@@ -1,0 +1,21 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "node --import tsx server.ts",
+    "start:watch": "npx tsx watch server.ts",
+    "test": "npx tsx --test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.1",
+    "tsx": "^4.15.6",
+    "typescript": "^5.5.2"
+  },
+  "dependencies": {
+    "@deno/kv": "^0.8.1",
+    "@fedify/fedify": "^0.10.0",
+    "@hono/node-server": "^1.11.4",
+    "@logtape/logtape": "^0.4.0",
+    "hono": "^4.4.7",
+    "x-forwarded-fetch": "^0.2.0"
+  }
+}
