@@ -17,6 +17,22 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: ./bin/activitypub-testing
+  
+  tap-summary:
+    name: "render a summary of TAP test report"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Build and test
+        run: |
+          npm ci
+          npm run test
+      - name: Create test summary
+        uses: test-summary/action@v1
+        with:
+          paths: tap/*.tap
+        if: always()
 
   # this is possible, and the proof is included, but it's not recommended.
   # It's nicer to maintain the shell script in a standalone file,
