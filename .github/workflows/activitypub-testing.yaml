@@ -1,3 +1,5 @@
+name: run activitypub-testing test suite
+
 on:
   push:
   workflow_dispatch:
@@ -19,7 +21,7 @@ jobs:
     - run: ./bin/activitypub-testing
   
   tap-summary:
-    name: "render a summary of TAP test report"
+    name: "render a summary of TAP test report node=${{ matrix.node-version }}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -45,7 +47,6 @@ jobs:
           cat tap/01-common.tap | npx tap-junit > build/01-common.junit.xml
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: env.GITHUB_TOKEN != ''
         with:
           files: |
             build/*.junit.xml
