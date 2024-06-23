@@ -45,7 +45,7 @@ jobs:
           cat tap/01-common.tap | npx tap-junit > build/01-common.junit.xml
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: env.GITHUB_TOKEN
+        if: env.GITHUB_TOKEN != ''
         with:
           files: |
             build/*.junit.xml
