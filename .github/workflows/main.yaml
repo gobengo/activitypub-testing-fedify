@@ -1,3 +1,5 @@
+name: "main workflow: on push, run tests"
+
 on: push
 
 jobs:
