@@ -45,7 +45,13 @@ jobs:
         run: |
           mkdir -p build
           cat tap/01-common.tap | npx tap-junit > build/01-common.junit.xml
-      - name: Test Report
+      - name: EnricoMi/publish-unit-test-result-action
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: github.token
+        with:
+          files: |
+            build/*.junit.xml
+      - name: dorny/test-reporter
         uses: dorny/test-reporter@v1
         if: github.token && (success() || failure())    # run this step even if previous step failed
         with:
