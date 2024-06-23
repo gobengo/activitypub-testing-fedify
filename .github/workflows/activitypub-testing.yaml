@@ -21,18 +21,34 @@ jobs:
   tap-summary:
     name: "render a summary of TAP test report"
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['20.x']
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Build and test
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: install deps and prepare npm package
         run: |
           npm ci
-          npm run test
       - name: Create test summary
         uses: test-summary/action@v1
         with:
           paths: tap/*.tap
         if: always()
+      - name: convert TAP files to equivalent JUnit XML
+        run: |
+          mkdir -p build
+          cat tap/01-common.tap | npx tap-junit > build/01-common.junit.xml
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: env.GITHUB_TOKEN
+        with:
+          files: |
+            build/*.junit.xml
 
   # this is possible, and the proof is included, but it's not recommended.
   # It's nicer to maintain the shell script in a standalone file,
