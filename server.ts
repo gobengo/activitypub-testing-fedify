@@ -6,6 +6,8 @@ await configure({
   sinks: { console: getConsoleSink() },
   filters: {},
   loggers: [
+    // this must be level > info to avoid a warning in console
+    { category: ["logtape", "meta"], sinks: ["console"], level: "warning" },
     { category: "fedify", sinks: ["console"], level: "info" },
   ],
 });
@@ -64,6 +66,8 @@ federation
       url: new URL("/", ctx.url),
       inbox: ctx.getInboxUri(handle),  // Inbox URI
       endpoints: new Endpoints({ sharedInbox: ctx.getInboxUri() }),
+      assertionMethods: (await ctx.getActorKeyPairs(handle))
+        .map((pair) => pair.multikey),
       // endpoints: new Endpoints({
       //   sharedInbox: new URL("/inbox", ctx.url)
       // })

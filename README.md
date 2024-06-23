@@ -12,6 +12,10 @@ This repository runs the activitypub-testing test runner against a simple server
 
 ## scripts
 
+### `bin/activitypub-testing`
+
+runs `server.ts`, then run `activitypub-testing test actor` against the running server.
+
 ### `bin/docker-herokuish-buildpack-test`
 
 [runs `herokuish buildpack test`](https://github.com/gliderlabs/herokuish?tab=readme-ov-file#running-an-app-tests-using-heroku-buildpacks) in a docker container. Herokuish should detect that this is a nodejs package, use heroku-buildpack-nodejs, and eventually `npm install` and `npm test`.
