@@ -32,13 +32,33 @@ runs `server.ts`, then run `activitypub-testing test actor` against the running 
 
 #### main
 
-main workflow. runs on every push.
+main workflow. runs tests on every push.
 
 ##### jobs
 
 ###### test
 
 test the activitypub-testing-fedify package using `npm test`.
+
+#### activitypub-testing
+
+on ever push, run `activitypub-testing test actor $server/users/me` against the server.
+
+##### jobs
+
+###### tap-summary
+
+reports on the test results.
+
+This is a WIP job
+* [x] prototype with fake TAP in [tap/01-common.tap](./tap/01-common.tap)
+* [ ] activitypub-testing should output TAP or JUnit
+* [ ] prototype script that converts existing activitypub-testing JSON output to TAP
+* [ ] replace 01-common.tap with TAP output from activitypub-testing in this tap-summary job
+
+###### test-actor
+
+runs `activitypub-testing test actor` against the server using `bin/activitypub-testing`
 
 ### run locally with nektos/act
 

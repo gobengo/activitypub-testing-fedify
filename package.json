@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.10.1",
-    "activitypub-testing": "^0.14.0",
+    "activitypub-testing": "^0.15.0",
     "tap": "^19.2.5",
     "tap-junit": "^5.0.3",
     "typescript": "^5.5.2"

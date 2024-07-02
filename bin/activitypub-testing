@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# shellcheck disable=SC3041
+set -eE; # start exit on error
+
 help() {
   echo "boots the server, then runs activitypub-testing against it"
 }
@@ -8,9 +11,13 @@ err() {
   >&2 echo "$@"
 }
 
+fetchActivityPubObject() {
+  curl -H 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"' "$1"
+}
+
 main() {
   err; err running server
-  npx tsx server.ts &
+  >&2 npx tsx server.ts &
   serverUrl=http://localhost:8000
 
   err; err waiting for server to be available at $serverUrl
@@ -21,13 +28,19 @@ main() {
   err; err server is available at $serverUrl
 
   me="$serverUrl/users/me"
-  err; err fetching "$me"
-  curl -v "$me" -H "Accept: application/json"
 
   err; err running \`activitypub-testing test actor "$me"\`
   npx activitypub-testing test actor "$me"
   err finished running \`activitypub-testing test actor "$me"\`
 
+  err; err fetching actor
+  actorJson="$(fetchActivityPubObject "$me")"
+
+  err; err running custom test /fep/521a/actor-objects-must-express-signing-key-as-assertionMethod-multikey.js
+  npx activitypub-testing run test \
+    --url=https://codeberg.org/socialweb.coop/activitypub-testing-fep-521a/raw/branch/main/fep/521a/actor-objects-must-express-signing-key-as-assertionMethod-multikey.js \
+    --input.actor="$actorJson"
+  err; err finished running custom test /fep/521a/actor-objects-must-express-signing-key-as-assertionMethod-multikey.js
 }
 
 cleanup() {
