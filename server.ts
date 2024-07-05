@@ -24,6 +24,26 @@ const kv = new MemoryKvStore()
 const federation = createFederation<void>({
   kv,
 });
+
+/**
+ * custom Actor subclass:
+ * * #toJsonLd produces JSON-LD with @context containing "https://w3id.org/fep/7628"
+ */
+class CustomPerson extends Person {
+  async toJsonLd(options) {
+    const jsonLd = await super.toJsonLd(options)
+    if (!(jsonLd && typeof jsonLd === 'object')) throw new Error(`expected jsonLd to be an object`)
+    return {
+      ...jsonLd,
+      '@context': [
+        ...jsonLd['@context'],
+        // include this here so FEP-0f2a test applies
+        "https://w3id.org/fep/7628",
+      ]
+    }
+  }
+}
+
 // configure inbox handling, e.g. for accepting follows
 federation
   .setInboxListeners("/users/{handle}/inbox", "/inbox")
@@ -58,7 +78,7 @@ federation
 federation
   .setActorDispatcher("/users/{handle}", async (ctx, handle) => {
     if (handle !== "me") return null;  // Other than "me" is not found.
-    return new Person({
+    const actor = new CustomPerson({
       id: ctx.getActorUri(handle),
       name: "Me",  // Display name
       summary: "This is me! (hi ben)",  // Bio
@@ -74,6 +94,7 @@ federation
       publicKeys: (await ctx.getActorKeyPairs(handle))
         .map(keyPair => keyPair.cryptographicKey),
     });
+    return actor
   })
   .setKeyPairsDispatcher(async (ctx, handle) => {
     if (handle != "me") return [];  // Other than "me" is not found.

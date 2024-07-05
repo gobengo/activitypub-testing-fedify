@@ -41,6 +41,13 @@ main() {
     --url=https://codeberg.org/socialweb.coop/activitypub-testing-fep-521a/raw/branch/main/fep/521a/actor-objects-must-express-signing-key-as-assertionMethod-multikey.js \
     --input.actor="$actorJson"
   err; err finished running custom test /fep/521a/actor-objects-must-express-signing-key-as-assertionMethod-multikey.js
+
+  err
+  err testing FEP-0f2a
+  npx activitypub-testing run test \
+    --url=https://codeberg.org/socialweb.coop/activitypub-testing-fep-0f2a/raw/branch/main/fep-0f2a-actor-object-tombstone-syntax.js \
+    --input.actor="$actorJson"
+  err finished testing FEP-0f2a
 }
 
 cleanup() {
