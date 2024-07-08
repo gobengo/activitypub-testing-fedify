@@ -18,6 +18,7 @@ import {
   Accept, Article, Create,
   createFederation, MemoryKvStore, Person, Follow, Endpoints, Note,
   exportJwk, generateCryptoKeyPair, importJwk,
+  Activity,
 } from "@fedify/fedify";
 
 import { Temporal, Intl, toTemporalInstant } from '@js-temporal/polyfill';
@@ -79,6 +80,41 @@ federation
       await kv.set(["followers"], [...await getFollowers(), follow.actorId.href]);
     }
   })
+  .on(Activity, async (ctx, activity) => {
+    console.log('BEN ON ACTIVITY', activity)
+  })
+  .on(Create, async (ctx, activity) => {
+    console.log('BEN ON Create', activity)
+    const from = await activity.getActor(ctx)
+    if ( ! from) {
+      console.log('unable to determine from address. ending early', from, activity)
+      return
+    }
+    const replyFromHandle = "me"
+    const activityObject = await activity.getObject()
+    console.log('about to sendActivity', { activityObject })
+    const replyPostId = new URL(`/posts/${(new Date).toISOString()}`, ctx.url)
+    const reply = new Create({
+      id: new URL(`#activity`, replyPostId),
+      actor: ctx.getActorUri(replyFromHandle),
+      published: toTemporalInstant.call(new Date),
+      to: new URL("https://www.w3.org/ns/activitystreams#Public"),
+      object: new Article({
+        id: replyPostId,
+        summary: 'this is an automatic reply at ' + (new Date).toISOString(),
+        content: 'this is a test post content ' + (new Date).toISOString(),
+        published: toTemporalInstant.call(new Date),
+        replyTarget: activityObject?.url || activity.objectId,
+      }),
+    })
+    await ctx.sendActivity(
+      { handle: replyFromHandle },
+      from,
+      reply,
+    );
+    console.log('finished sendActivity', reply)
+  })
+
 federation
   .setActorDispatcher("/users/{handle}", async (ctx, handle) => {
     if (handle !== "me") return null;  // Other than "me" is not found.
