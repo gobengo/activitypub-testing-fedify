@@ -15,10 +15,14 @@ await configure({
 // fedify
 
 import {
-  Accept,
+  Accept, Article, Create,
   createFederation, MemoryKvStore, Person, Follow, Endpoints, Note,
   exportJwk, generateCryptoKeyPair, importJwk,
 } from "@fedify/fedify";
+
+import { Temporal, Intl, toTemporalInstant } from '@js-temporal/polyfill';
+// @ts-expect-error new Date method
+Date.prototype.toTemporalInstant = toTemporalInstant;
 
 const kv = new MemoryKvStore()
 const federation = createFederation<void>({
@@ -85,6 +89,7 @@ federation
       preferredUsername: handle,  // Bare handle
       url: new URL("/", ctx.url),
       inbox: ctx.getInboxUri(handle),  // Inbox URI
+      outbox: ctx.getOutboxUri(handle),
       endpoints: new Endpoints({ sharedInbox: ctx.getInboxUri() }),
       assertionMethods: (await ctx.getActorKeyPairs(handle))
         .map((pair) => pair.multikey),
@@ -141,6 +146,29 @@ federation.setObjectDispatcher(
   }
 );
 
+// add an outboxDispatcher for /users/me so the actor has an outbox of recent posts
+federation.setOutboxDispatcher("/users/{handle}/outbox", async (ctx, handle) => {
+  return  {
+    totalItems: 1,
+    items: [
+      new Create({
+        id: new URL(`/posts/0#activity`, ctx.url),
+        actor: ctx.getActorUri(handle),
+        published: toTemporalInstant.call(new Date),
+        to: new URL("https://www.w3.org/ns/activitystreams#Public"),
+        object: new Article({
+          id: new URL(`/posts/0`, ctx.url),
+          summary: 'this is a test post summary',
+          content: 'this is a test post content',
+          published: toTemporalInstant.call(new Date)
+        }),
+      })
+    ]
+  }
+}).setCounter(async () => {
+  return 1
+})
+
 // make hono app from fedify federation
 // + add an html home page that renders followers from kv
 
@@ -174,8 +202,11 @@ const filePath = fileURLToPath(import.meta.url)
 const processPath = process.argv[1]
 
 if (filePath === processPath) {
-  serve({
-    port: process.env.PORT || 8000,
-    fetch: behindProxy(app.fetch)
+  const port = parseInt(process.env.PORT || '8000')
+  const server = serve({
+    port,
+    fetch: behindProxy(app.fetch),
+  }).once('listening', () => {
+    console.debug('listening', server.address())
   });
 }
