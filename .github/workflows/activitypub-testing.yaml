@@ -36,15 +36,21 @@ jobs:
       - name: install deps and prepare npm package
         run: |
           npm ci
+      - name: activitypub-testing -> tap/activitypub-testing.tap
+        run: |
+          mkdir -p tmp
+          bin/activitypub-testing \
+          | bin/assertion-ndjson-to-tap.js \
+          | tee tmp/activitypub-testing.tap
       - name: Create test summary
         uses: test-summary/action@v2
         with:
-          paths: tap/*.tap
+          paths: tmp/*.tap
         if: always()
       - name: convert TAP files to equivalent JUnit XML
         run: |
           mkdir -p build
-          cat tap/01-common.tap | npx tap-junit > build/01-common.junit.xml
+          cat tmp/*.tap | npx tap-junit > build/01-common.junit.xml
       - name: EnricoMi/publish-unit-test-result-action
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: github.token
@@ -55,7 +61,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: github.token && (success() || failure())    # run this step even if previous step failed
         with:
-          name: 01-common JUnit Tests            # Name of the check run which will be created
+          name: junit tests            # Name of the check run which will be created
           path: build/*.junit.xml    # Path to test results
           reporter: java-junit        # Format of test results
 
