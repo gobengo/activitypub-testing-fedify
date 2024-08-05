@@ -42,6 +42,9 @@ jobs:
           bin/activitypub-testing \
           | bin/assertion-ndjson-to-tap.js \
           | tee tmp/activitypub-testing.tap
+      - name: save activitypub-testing.tap to GITHUB_STEP_SUMMARY
+        run: |
+          cat tmp/activitypub-testing.tap >> $GITHUB_STEP_SUMMARY
       - name: Create test summary
         uses: test-summary/action@v2
         with:
