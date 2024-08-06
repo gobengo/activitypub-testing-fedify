@@ -42,7 +42,7 @@ jobs:
           bin/activitypub-testing \
           | bin/assertion-ndjson-to-tap.js \
           | tee tmp/activitypub-testing.tap \
-          | npx tap -R markdown \
+          | npx tap -R markdown - \
           | tee tmp/activitypub-testing.tap.md
       - name: save testing summary to GITHUB_STEP_SUMMARY
         run: |
