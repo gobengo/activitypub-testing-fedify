@@ -41,32 +41,12 @@ jobs:
           mkdir -p tmp
           bin/activitypub-testing \
           | bin/assertion-ndjson-to-tap.js \
-          | tee tmp/activitypub-testing.tap
-      - name: save activitypub-testing.tap to GITHUB_STEP_SUMMARY
+          | tee tmp/activitypub-testing.tap \
+          | npx tap -R markdown \
+          | tee tmp/activitypub-testing.tap.md
+      - name: save testing summary to GITHUB_STEP_SUMMARY
         run: |
-          cat tmp/activitypub-testing.tap >> $GITHUB_STEP_SUMMARY
-      - name: Create test summary
-        uses: test-summary/action@v2
-        with:
-          paths: tmp/*.tap
-        if: always()
-      - name: convert TAP files to equivalent JUnit XML
-        run: |
-          mkdir -p build
-          cat tmp/*.tap | npx tap-junit > build/01-common.junit.xml
-      - name: EnricoMi/publish-unit-test-result-action
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: github.token
-        with:
-          files: |
-            build/*.junit.xml
-      - name: dorny/test-reporter
-        uses: dorny/test-reporter@v1
-        if: github.token && (success() || failure())    # run this step even if previous step failed
-        with:
-          name: junit tests            # Name of the check run which will be created
-          path: build/*.junit.xml    # Path to test results
-          reporter: java-junit        # Format of test results
+          cat tmp/activitypub-testing.tap.md >> $GITHUB_STEP_SUMMARY
 
   # this is possible, and the proof is included, but it's not recommended.
   # It's nicer to maintain the shell script in a standalone file,
