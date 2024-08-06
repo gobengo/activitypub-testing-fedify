@@ -1,0 +1,41 @@
+TAP version 14
+not ok 0 - An ActivityPub Actor Object's `following` Collection Must be a Collection # SKIP
+
+not ok 1 - An ActivityPub Actor Object's `followers` Collection Must be a Collection # SKIP
+
+not ok 2 - An ActivityPub Object `liked` Collection Must be a Collection # SKIP
+
+not ok 3 - An ActivityPub Object `likes` Collection Must be a Collection # SKIP
+
+not ok 4 - shares collection MUST be either an OrderedCollection or a Collection # SKIP
+
+ok 5 - Actor Objects Must Have Properties inbox and outbox
+
+not ok 6 - inbox must be an OrderedCollection
+  ---
+  foo: bar
+  baz: bar
+  ...
+
+
+ok 7 - outbox must be an OrderedCollection
+
+ok 8 - Outbox Servers handling submissions MUST accept a valid object that isn't a subtype of Activity
+
+not ok 9 - Outbox Servers handling activity submissions MUST return a 201 created HTTP status code
+
+not ok 10 - Outbox Wraps Object With Create Activity # SKIP
+
+not ok 11 - post outbox server must overwrite id property # SKIP
+
+ok 12 - ActivityPub Servers Must Serve Objects in Response to an HTTP GET Request Accepting ActivityStreams 2.0 Media Type
+
+not ok 13 - Check that outbox post server added to outbox collection by getting the outbox collection and looking in the items # SKIP
+
+not ok 14 - Create then Update modifies an Object as checked by getting the Object after the Update # SKIP
+
+ok 15 - Actor Objects must express signing key as assertionMethod Multikey
+
+ok 16 - Actor Object Tombstone Syntax
+
+1..17
